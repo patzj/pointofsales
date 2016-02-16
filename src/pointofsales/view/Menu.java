@@ -24,6 +24,7 @@ public class Menu {
      */
     public static void displayHomeMenu() {
         Scanner input = new Scanner(System.in);
+        ArrayList<Product> purchaseList = new ArrayList<>();
         int choice = 0;
         
         drawHorizontalBrokenLines(28);
@@ -38,12 +39,12 @@ public class Menu {
         print("Enter choice: ");
         
         try {
-            choice = input.nextInt();
+            choice = Integer.parseInt(input.nextLine());
             
             if(choice < 1 || choice > 5) {
-                throw new InputMismatchException();
+                throw new NumberFormatException();
             }
-        } catch(InputMismatchException e) {
+        } catch(NumberFormatException e) {
             // redisplay home menu
             println("Invalid input.");
             displayHomeMenu();
@@ -56,15 +57,12 @@ public class Menu {
             case 2:
                 displayUpdateMenu();
                 break;
-
             case 3:
-
+                displayDeleteMenu();
                 break;
-
             case 4:
-
+                displayPurchaseMenu(purchaseList);
                 break;
-
             case 5:
                 println("Exit.");
                 System.exit(0);
@@ -92,12 +90,12 @@ public class Menu {
         print("Enter Choice: ");
         
         try {
-            choice = input.nextInt();
+            choice = Integer.parseInt(input.nextLine());
             
             if(choice < 1 || choice > 2) {
-                throw new InputMismatchException();
+                throw new NumberFormatException();
             }
-        } catch(InputMismatchException e) {
+        } catch(NumberFormatException e) {
             // redisplay add menu
             println("Invalid input.");
             displayAddMenu();
@@ -168,7 +166,8 @@ public class Menu {
             print("Continue adding product? y/n:\t");
             onErrChoice = input.nextLine();
             
-            if(onErrChoice.equalsIgnoreCase("y")) {
+            if(onErrChoice.equalsIgnoreCase("y") || 
+                    onErrChoice.equalsIgnoreCase("yes")) {
                 doAddProduct();
             } else {
                 displayAddMenu();
@@ -204,15 +203,15 @@ public class Menu {
         viewProductList();
         println("| 0 - Back                 |");
         drawHorizontalBrokenLines(28);
-        print("Enter Product ID: ");
+        print("Enter product ID to update: ");
         
         try {
-            choice = input.nextInt();
+            choice = Integer.parseInt(input.nextLine());
 
             if(choice < 0) {
-                throw new InputMismatchException();
+                throw new NumberFormatException();
             }
-        } catch(InputMismatchException e) {
+        } catch(NumberFormatException e) {
             // redisplay add menu
             println("Invalid input.");
             displayUpdateMenu();
@@ -245,6 +244,7 @@ public class Menu {
             }
         }
         
+        // edit product
         if(product != null) {
             // get index of product
             index = productList.indexOf(product);
@@ -286,7 +286,7 @@ public class Menu {
             quantity = Integer.parseInt(input.nextLine());
             
             if(quantity < 0) {
-                throw new InputMismatchException();
+                throw new NumberFormatException();
             }
         } catch(NumberFormatException e) {
             quantity = product.getQuantity();
@@ -297,7 +297,7 @@ public class Menu {
             price = Double.parseDouble(input.nextLine());
             
             if(price < 0) {
-                throw new InputMismatchException();
+                throw new NumberFormatException();
             }
         } catch(NumberFormatException e) {
             price = product.getPrice();
@@ -308,5 +308,296 @@ public class Menu {
         product.setPrice(price);
         
         return product;
+    }
+    
+    public static void displayDeleteMenu() {
+        Scanner input = new Scanner(System.in);
+        int choice = 0;
+        
+        drawHorizontalBrokenLines(28);
+        println("|       Delete Menu        |");
+        drawHorizontalBrokenLines(28);
+        println("|       Product List       |");
+        drawHorizontalBrokenLines(28);
+        viewProductList();
+        println("| 0 - Back                 |");
+        drawHorizontalBrokenLines(28);
+        print("Enter product ID to delete: ");
+        
+        try {
+            choice = Integer.parseInt(input.nextLine());
+
+            if(choice < 0) {
+                throw new NumberFormatException();
+            }
+        } catch(NumberFormatException e) {
+            // redisplay add menu
+            println("Invalid input.");
+            displayUpdateMenu();
+        }
+        
+        if(choice == 0) {
+            displayHomeMenu();
+        } else {
+            doDeleteProduct(choice);
+        }         
+    }
+    
+    public static void doDeleteProduct(int id) {
+        Scanner input = new Scanner(System.in);
+        ProductIO io = new ProductIO();
+        Product temp;
+        Product product = null;
+        ArrayList<Product> productList;
+        Iterator iterator;
+        String choice;
+        
+        io.readProductList();
+        productList = io.getProductList();
+        iterator = productList.iterator();
+        
+        // get product to be edited
+        while(iterator.hasNext()) {
+            temp = (Product) iterator.next();
+            if(temp.getId() == id) {
+                product = temp;
+            }
+        }
+        
+        // remove product
+        if(product != null) {
+            print("Delete product " + id + "? y/n: ");
+            choice = input.nextLine();
+            if(choice.equalsIgnoreCase("y") || 
+                    choice.equalsIgnoreCase("yes")) {
+                io.removeProduct(product);
+                io.writeProductList();
+                drawHorizontalBrokenLines(28);
+                println("Successfully deleted product.");
+                displayDeleteMenu();
+            } else {
+                displayDeleteMenu();
+            }
+        } else {
+            println("Invalid id.");
+            displayDeleteMenu();
+        }
+    }
+    
+    public static void displayPurchaseMenu(ArrayList<Product> purchaseList) {
+        Scanner input = new Scanner(System.in);
+        int choice = 0;
+        int quantity = 0;
+        
+        drawHorizontalBrokenLines(28);
+        println("|      Purchase Menu       |");
+        drawHorizontalBrokenLines(28);
+        println("|       Product List       |");
+        drawHorizontalBrokenLines(28);
+        viewPurchaseProductList();
+        println("| 1 - View Cart            |");
+        println("| 2 - Cash Out             |");
+        println("| 3 - Cancel               |");
+        drawHorizontalBrokenLines(28);
+        print("Enter product ID to purchase: ");
+        
+        try {
+            choice = Integer.parseInt(input.nextLine());
+            
+            if(choice < 1) {
+                throw new NumberFormatException();
+            }
+        } catch(NumberFormatException e) {
+            println("Invalid input.");
+            displayPurchaseMenu(purchaseList);
+        }
+        
+        switch(choice) {
+            case 1:
+                viewCart(purchaseList);
+                break;
+            case 2:
+                cashOut(purchaseList);
+                break;
+            case 3:
+                displayHomeMenu();
+                break;
+            default:
+                print("Enter quantity: ");
+                
+                try {
+                    quantity = Integer.parseInt(input.nextLine());
+                    
+                    if(quantity < 1) {
+                        throw new NumberFormatException();
+                    }
+                } catch (NumberFormatException e) {
+                    println("Invalid quantity.");
+                    displayPurchaseMenu(purchaseList);
+                }
+                
+                addToCart(purchaseList, choice, quantity);
+        }
+    }
+    
+    public static void viewPurchaseProductList() {
+        ProductIO io = new ProductIO();
+        Product product;
+        ArrayList<Product> productList;
+        Iterator iterator;
+        
+        io.readProductList();
+        productList = io.getProductList();
+        iterator = productList.iterator();
+        
+        while(iterator.hasNext()) {
+            product = (Product) iterator.next();
+            println("" + product.getId());
+            print(product.getName() + " : ");
+            println("price: " + product.getPrice());
+            drawHorizontalBrokenLines(28);
+        }
+    }
+    
+    public static void addToCart(ArrayList<Product> purchaseList, 
+            int id, int quantity) {
+        ProductIO io = new ProductIO();
+        Product temp;
+        Product product = null;
+        ArrayList<Product> productList;
+        Iterator iterator;
+        
+        io.readProductList();
+        productList = io.getProductList();
+        iterator = productList.iterator();
+        
+        // get product to be edited
+        while(iterator.hasNext()) {
+            temp = (Product) iterator.next();
+            if(temp.getId() == id) {
+                product = temp;
+            }
+        }
+        
+        // add product
+        if(product != null) {
+            if(product.getQuantity() >= quantity && 
+                    quantity > 0) {
+                product.setQuantity(quantity);
+                purchaseList.add(product);
+                displayPurchaseMenu(purchaseList);
+            } else {
+                println("Invalid quantity.");
+                displayPurchaseMenu(purchaseList);
+            }
+        } else {
+            println("Invalid id.");
+            displayPurchaseMenu(purchaseList);
+        }        
+    }
+    
+    public static void viewCart(ArrayList<Product> purchaseList) {
+        Scanner input = new Scanner(System.in);
+        Product product;
+        double subTotal;
+        double total = 0;
+        Iterator iterator;
+        
+        iterator = purchaseList.iterator();
+        drawHorizontalBrokenLines(28);
+        println("Cart");
+        drawHorizontalBrokenLines(28);
+        while(iterator.hasNext()) {
+            product = (Product) iterator.next();
+            subTotal = product.getPrice() * product.getQuantity();
+            print(product.getName() + " : " + product.getPrice());
+            println(" * " + product.getQuantity() + " = "
+                    + subTotal);
+            total += subTotal;
+        }
+        
+        drawHorizontalBrokenLines(28);
+        println("Total: " + total);
+        drawHorizontalBrokenLines(28);
+        print("Press Enter to go back: ");
+        input.nextLine();
+        displayPurchaseMenu(purchaseList);
+    }
+    
+    public static void cashOut(ArrayList<Product> purchaseList) {
+        Scanner input = new Scanner(System.in);
+        ProductIO io = new ProductIO();
+        ArrayList<Product> productList = new ArrayList<>();
+        Product product;
+        Product purchase;
+        double subTotal;
+        double total = 0;
+        double bill = 0;
+        double change;
+        String choice;
+        Iterator purchaseIterator;
+        Iterator productIterator;
+        
+        purchaseIterator = purchaseList.iterator();
+        drawHorizontalBrokenLines(28);
+        println("Cash Out");
+        drawHorizontalBrokenLines(28);
+        
+        // loop thru purchaseList
+        while(purchaseIterator.hasNext()) {
+            
+            product = (Product) purchaseIterator.next();
+            subTotal = product.getPrice() * product.getQuantity();
+            total += subTotal;
+        }
+        
+        println("Total: " + total);
+        print("Enter bill: ");
+        
+        try {
+            bill = Double.parseDouble(input.nextLine());
+            
+            if(bill < 0 || bill < total) {
+                throw new NumberFormatException();
+            }
+        } catch(NumberFormatException e) {
+            println("Invalid bill.");
+            cashOut(purchaseList);
+        }
+        
+        print("Continue purchase? y/n: ");
+        choice = input.nextLine();
+        
+        if(choice.equalsIgnoreCase("y") || 
+                choice.equalsIgnoreCase("yes")) {
+            // get inventory for update
+            io.readProductList();
+            productList = io.getProductList();
+            productIterator = productList.iterator();            
+            
+            // set inventory
+            while(productIterator.hasNext()) {
+                product = (Product) productIterator.next();
+                purchaseIterator = purchaseList.iterator();
+                while(purchaseIterator.hasNext()) {
+                    purchase = (Product) purchaseIterator.next();
+                    if(product.getId() == purchase.getId()) {
+                        product.setQuantity(product.getQuantity() - 
+                                purchase.getQuantity());
+                    }
+                }
+            }
+            
+            io.writeProductList();
+            
+            change = bill - total;
+            println("Purchase successfull.");
+            println("Change: " + change);
+            println("Press Enter to continue: ");
+            input.nextLine();
+            displayHomeMenu();
+        } else {
+            displayPurchaseMenu(purchaseList);
+        }
     }
 }

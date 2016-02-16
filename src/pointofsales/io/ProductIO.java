@@ -91,6 +91,10 @@ public class ProductIO {
         productList.add(product);
     }
     
+    public void setProduct(int index, Product product) {
+        productList.set(index, product);
+    }
+    
     public void removeProduct(Product product) {
         productList.remove(product);
     }
