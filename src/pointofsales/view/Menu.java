@@ -15,7 +15,7 @@ import pointofsales.io.ProductIO;
 import static pointofsales.util.PrintWriter.*;
 
 /**
- *
+ * This class contains all of the main functions of the application
  * @author patzj
  */
 public class Menu {
@@ -27,6 +27,7 @@ public class Menu {
         ArrayList<Product> purchaseList = new ArrayList<>();
         int choice = 0;
         
+        // Interface
         drawHorizontalBrokenLines(28);
         println("|      Point-Of-Sales      |");
         drawHorizontalBrokenLines(28);
@@ -50,6 +51,7 @@ public class Menu {
             displayHomeMenu();
         }
         
+        // next menu selection
         switch (choice) {
             case 1:
                 displayAddMenu();
@@ -101,6 +103,7 @@ public class Menu {
             displayAddMenu();
         }
         
+        // next menu selection
         switch(choice) {
             case 1:
                 doAddProduct();
@@ -125,6 +128,7 @@ public class Menu {
         productList = io.getProductList();
         iterator = productList.iterator();
         
+        // loop thru products
         while(iterator.hasNext()) {
             product = (Product) iterator.next();
             drawHorizontalBrokenLines(28);
@@ -149,23 +153,35 @@ public class Menu {
         double price = 0.0;
         String onErrChoice;
         
+        // prompt interface
         try {
             drawHorizontalBrokenLines(28);
             print("Enter ID:\t");
-            id = input.nextInt();
-            input.nextLine();
+            id = Integer.parseInt(input.nextLine());
+            if(id < 1000) {
+                throw new NumberFormatException();
+            }
+            
             print("Enter Name:\t");
             name = input.nextLine();
+            
             print("Enter Qty:\t");
-            quantity = input.nextInt();
+            quantity = Integer.parseInt(input.nextLine());
+            if(quantity < 0) {
+                throw new NumberFormatException();
+            }
+            
             print("Enter Price:\t");
-            price = input.nextDouble();
-        } catch(InputMismatchException e) {
-            input.nextLine();
+            price = Double.parseDouble(input.nextLine());
+            if(price <= 0) {
+                throw new NumberFormatException();
+            }
+        } catch(NumberFormatException e) {
             println("Invalid input. Product not added.");
             print("Continue adding product? y/n:\t");
             onErrChoice = input.nextLine();
             
+            // prompt for invalid input
             if(onErrChoice.equalsIgnoreCase("y") || 
                     onErrChoice.equalsIgnoreCase("yes")) {
                 doAddProduct();
@@ -174,12 +190,14 @@ public class Menu {
             }
         }
         
+        // set Product object
         product = new Product();
         product.setId(id);
         product.setName(name);
         product.setQuantity(quantity);
         product.setPrice(price);
         
+        // initialize and save product list
         io = new ProductIO();
         io.readProductList();
         io.addProduct(product);
@@ -191,10 +209,14 @@ public class Menu {
         displayAddMenu();
     }
     
+    /**
+     * Update menu
+     */
     public static void displayUpdateMenu() {
         Scanner input = new Scanner(System.in);
         int choice = 0;
         
+        // interface
         drawHorizontalBrokenLines(28);
         println("|       Update Menu        |");
         drawHorizontalBrokenLines(28);
@@ -217,6 +239,7 @@ public class Menu {
             displayUpdateMenu();
         }
         
+        // next menu selection
         if(choice == 0) {
             displayHomeMenu();
         } else {
@@ -224,6 +247,10 @@ public class Menu {
         }        
     }
     
+    /**
+     * Product validity checker and product list updater
+     * @param id 
+     */
     public static void doUpdateProduct(int id) {
         ProductIO io = new ProductIO();
         Product temp;
@@ -260,12 +287,18 @@ public class Menu {
         }
     }
     
+    /**
+     * Input prompt for setting new product properties
+     * @param product
+     * @return updated product for product list update
+     */
     public static Product updateProductForm(Product product) {
         Scanner input = new Scanner(System.in);
         String name;
         int quantity;
         double price;     
 
+        // prompt interface
         drawHorizontalBrokenLines(28);
         println("Leave the fields you \n"
                 + "don't want to update.");
@@ -303,6 +336,7 @@ public class Menu {
             price = product.getPrice();
         }
         
+        // set new product properties
         product.setName(name);
         product.setQuantity(quantity);
         product.setPrice(price);
@@ -310,10 +344,14 @@ public class Menu {
         return product;
     }
     
+    /**
+     * Delete menu
+     */
     public static void displayDeleteMenu() {
         Scanner input = new Scanner(System.in);
         int choice = 0;
         
+        // interface
         drawHorizontalBrokenLines(28);
         println("|       Delete Menu        |");
         drawHorizontalBrokenLines(28);
@@ -336,6 +374,7 @@ public class Menu {
             displayUpdateMenu();
         }
         
+        // next menu selection
         if(choice == 0) {
             displayHomeMenu();
         } else {
@@ -343,6 +382,10 @@ public class Menu {
         }         
     }
     
+    /**
+     * Delete product from the product list
+     * @param id 
+     */
     public static void doDeleteProduct(int id) {
         Scanner input = new Scanner(System.in);
         ProductIO io = new ProductIO();
@@ -384,11 +427,16 @@ public class Menu {
         }
     }
     
+    /**
+     * Purchase menu
+     * @param purchaseList list of items on cart
+     */
     public static void displayPurchaseMenu(ArrayList<Product> purchaseList) {
         Scanner input = new Scanner(System.in);
         int choice = 0;
         int quantity = 0;
         
+        // interface
         drawHorizontalBrokenLines(28);
         println("|      Purchase Menu       |");
         drawHorizontalBrokenLines(28);
@@ -412,6 +460,7 @@ public class Menu {
             displayPurchaseMenu(purchaseList);
         }
         
+        // next menu selection
         switch(choice) {
             case 1:
                 viewCart(purchaseList);
@@ -423,6 +472,7 @@ public class Menu {
                 displayHomeMenu();
                 break;
             default:
+                // set id and quantity of product to be added to cart
                 print("Enter quantity: ");
                 
                 try {
@@ -440,6 +490,9 @@ public class Menu {
         }
     }
     
+    /**
+     * List of products for purchase menu
+     */
     public static void viewPurchaseProductList() {
         ProductIO io = new ProductIO();
         Product product;
@@ -450,6 +503,7 @@ public class Menu {
         productList = io.getProductList();
         iterator = productList.iterator();
         
+        // loop thru product list
         while(iterator.hasNext()) {
             product = (Product) iterator.next();
             println("" + product.getId());
@@ -459,6 +513,12 @@ public class Menu {
         }
     }
     
+    /**
+     * Add product to cart
+     * @param purchaseList list of items on cart
+     * @param id of item to be added to cart
+     * @param quantity  of item to be added cart
+     */
     public static void addToCart(ArrayList<Product> purchaseList, 
             int id, int quantity) {
         ProductIO io = new ProductIO();
@@ -496,6 +556,10 @@ public class Menu {
         }        
     }
     
+    /**
+     * View items added to the cart
+     * @param purchaseList list of items on cart
+     */
     public static void viewCart(ArrayList<Product> purchaseList) {
         Scanner input = new Scanner(System.in);
         Product product;
@@ -507,6 +571,8 @@ public class Menu {
         drawHorizontalBrokenLines(28);
         println("Cart");
         drawHorizontalBrokenLines(28);
+        
+        // loop thru purchase list
         while(iterator.hasNext()) {
             product = (Product) iterator.next();
             subTotal = product.getPrice() * product.getQuantity();
@@ -524,6 +590,10 @@ public class Menu {
         displayPurchaseMenu(purchaseList);
     }
     
+    /**
+     * Cash out menu
+     * @param purchaseList 
+     */
     public static void cashOut(ArrayList<Product> purchaseList) {
         Scanner input = new Scanner(System.in);
         ProductIO io = new ProductIO();
@@ -543,7 +613,7 @@ public class Menu {
         println("Cash Out");
         drawHorizontalBrokenLines(28);
         
-        // loop thru purchaseList
+        // loop thru purchase list
         while(purchaseIterator.hasNext()) {
             
             product = (Product) purchaseIterator.next();
@@ -551,6 +621,7 @@ public class Menu {
             total += subTotal;
         }
         
+        // bill prompt
         println("Total: " + total);
         print("Enter bill: ");
         
@@ -565,6 +636,7 @@ public class Menu {
             cashOut(purchaseList);
         }
         
+        // purchase prompt
         print("Continue purchase? y/n: ");
         choice = input.nextLine();
         
@@ -588,8 +660,10 @@ public class Menu {
                 }
             }
             
+            // update inventory
             io.writeProductList();
             
+            // bill computation
             change = bill - total;
             println("Purchase successfull.");
             println("Change: " + change);

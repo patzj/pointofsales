@@ -9,7 +9,7 @@ package pointofsales;
 import static pointofsales.view.Menu.*;
 
 /**
- *
+ * Main class.
  * @author patzj
  */
 public class PointOfSales {
@@ -19,7 +19,7 @@ public class PointOfSales {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+        // initialize the application
         displayHomeMenu();
 
     } 
